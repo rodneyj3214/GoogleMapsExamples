@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Simple Map</title>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=default"></script>
+    <style type="text/css">
+        /* Always set the map height explicitly to define the size of the div
+        * element that contains the map. */
+        #map {
+            height: 100%;
+        }
+
+        /* Optional: Makes the sample page fill the window. */
+        html,
+        body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+    </style>
+
+    <script>
+        let map;
+        //Quito
+        let latitude = -0.1806532;
+        let longitude = -78.4678382;
+
+        let marker;
+        let coords = { lat: latitude, lng: longitude };
+
+        function initMap() {
+            // Nuevo mapa
+            var options = {
+                center: coords,
+                zoom: 15,
+            };
+            var map = new google.maps.Map(document.getElementById("map"), options);
+
+
+            // Envento de Click en el mapa
+            google.maps.event.addListener(map, "click", function (event) {
+                // Eliminar Marcador anterior
+                if (marker) {marker.setMap(null)}
+
+                // Agregar nuevo marcador donde se hizo click
+                addMarker({ coords: event.latLng });
+                //map.setCenter(event.latLng); //  Cambiar Centro del mapa
+            });
+
+            //Agregar nuevo marcador
+            function addMarker(proops) {
+                marker = new google.maps.Marker({
+                    position: proops.coords,
+                    map: map,
+                });
+            }
+
+            /* Funcion en caso de permitir hubicación con GPS */
+            function onSucccess(position) {
+                coords = { lat: position.coords.latitude, lng: position.coords.longitude };
+                addMarker({ coords: coords });// Agregar marcador
+                map.setCenter(coords); //  Cambiar Centro del mapa
+            }
+
+            function onError() {
+                console.log("ubicacion no permitida.");
+            }
+            
+            // Validar que puede permitir geolocalización.
+            if ("geolocation" in navigator) {
+                // Tiempo de espera por petición
+                var config = {
+                    enableHighAccuracy: true,
+                    maximumAge: 30000,
+                    timeout: 27000,
+                };
+
+                // Solicitar permiso de rastreo de mapas
+                navigator.geolocation.getCurrentPosition(onSucccess, onError, config);
+            }
+        }
+
+        // FUNCION PARA RECUPERAR COORDENADAS DE MARCADOR
+        function getMarkPosition() {
+            alert("Latitud: "+marker.getPosition().lat()+" Longitud: "+marker.getPosition().lng())
+            
+            
+            console.log(marker.getPosition().lat()); // Latitud
+            console.log(marker.getPosition().lng()); // Longitud
+            
+            // TODO: Aqui CONSUMIR SERVICIO DE Sidesoft.
+        }
+    </script>
+</head>
+
+<body>
+    <button type="button" onclick="getMarkPosition()">Click Me!</button>
+
+    <div id="map"></div>
+    <!-- Async script executes immediately and must be after any DOM elements used in callback. -->
+    <script
+        src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&callback=initMap&libraries=&v=weekly"
+        async></script>
+</body>
+
+</html>
